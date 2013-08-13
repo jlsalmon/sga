@@ -1,3 +1,20 @@
+#-------------------------------------------------------------------------------
+# Author: Justin Lewis Salmon <mccrustin@gmail.com>
+#-------------------------------------------------------------------------------
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#-------------------------------------------------------------------------------
+
 import argparse
 import json
 from sga import selection, crossover, mutation, fitness
@@ -6,7 +23,9 @@ from sga.representation import Representation
 
 
 def setup_args():
-    """"""
+    """Return an object containing the command-line args, once they have been
+    validated. Exit on error.
+    """
     parser = argparse.ArgumentParser(description='Run a genetic algorithm.')
 
     parser.add_argument('-r', '--representation',
@@ -79,12 +98,16 @@ def setup_args():
 
     args = parser.parse_args()
 
+    #---------------------------------------------------------------------------
     # Ensure 0 < probability < 1
+    #---------------------------------------------------------------------------
     if not (0 < float(args.crossover_probability) < 1) \
             or not (0 < float(args.mutation_probability) < 1):
         parser.error('probabilities must be between 0 and 1')
 
+    #---------------------------------------------------------------------------
     # Get the function pointers
+    #---------------------------------------------------------------------------
     try:
         args.selection_scheme = getattr(selection, args.selection_scheme)
         args.crossover_scheme = getattr(crossover, args.crossover_scheme)
@@ -146,10 +169,14 @@ def main():
                    crossover_probability=args.crossover_probability,
                    mutation_probability=args.mutation_probability)
 
+    #---------------------------------------------------------------------------
     # Generate the initial population
+    #---------------------------------------------------------------------------
     p.gen_population()
 
+    #---------------------------------------------------------------------------
     # Run the GA
+    #---------------------------------------------------------------------------
     run(p, args.generations)
 
 #-------------------------------------------------------------------------------
