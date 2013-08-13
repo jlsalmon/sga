@@ -48,8 +48,8 @@ Representation format
 The representation format is a Python dictionary, passed on the command line,
 which specifies the genome length, type, acceptable values, etc.
 
-Options
-*******
+**Options**
+***********
 
 * `"length"`     : the length of the genome
 * `"type"`       : the type of the genome ["int", "float", "binary", "enum"]
@@ -60,8 +60,8 @@ Options
 * `"values"`     : list of possible allele values (only valid for enum types)
 * `"duplicates"` : whether duplicate alleles are allowed in a single genome
 
-Examples
-********
+**Examples**
+************
 
 ```
     # Binary
@@ -93,3 +93,47 @@ Examples
      "values" : ["red", "blue", "green", "yellow"]
     }
 ```
+
+Customising the algorithm
+-------------------------
+
+To allow greater flexibility, it is possible to define additional custom
+functions for crossover, mutation and selection operations in addition to the
+supplied built-in schemes.
+
+**Selection**
+*************
+
+Roulette-wheel and tournament selection are supplied. To add a new selection
+scheme, put your function in [selection.py](sga/selection.py). See that file
+for reference implementations. The selection function takes a single parameter 
+which will be the current population object (see [population.py](sga/population.py).
+Your function should return a list containing the newly selected population
+of genome objects (see [genome.py](sga/genome.py)).
+
+**Crossover**
+*************
+
+Single-point and uniform crossover schemes are supplied. Add your custom crossover
+function to [crossover.py](sga/crossover.py). The function will take 2 parameters,
+both being individual genomes of your supplied representational format, and should
+return two newly crossed-over children.
+
+The library code determines whether your crossover function is called, so you do
+not need to check for it in your code.
+
+**Mutation**
+************
+
+Bit-flipping and swapping mutation schemes are supplied. Add your custom mutation
+function to [mutation.py](sga/mutation.py). The function will take a single genome
+of your supplied representational format, and it should return a newly mutated
+genome of the same format.
+
+The library code determines whether your mutation function is called, so you do
+not need to check for it in your code.
+
+Contact
+-------
+
+Problems? Submit an issue or email me. I happily accept pull requests!
