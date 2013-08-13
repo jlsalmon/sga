@@ -17,21 +17,39 @@
 
 
 def all_ones(genome):
-    """Return the number of 1s in the given binary-encoded genome"""
+    """
+    Fitness function based upon the number of 1s in the representation. This
+    function only makes sense to use for binary representations.
+
+    :param genome: the individual genome to evaluate
+    :returns:      the number of 1s in the genome
+    """
     return len([i for i in genome if int(i) == 1])
 
 
 def matching_bits(genome):
-    """Return the number of consecutive pairs of matching bits"""
-    # TODO
+    """
+    Fitness function based upon the number of pairs of matching bits in the
+    representation. E.g. the genome 11001100 would have a fitness value of 4,
+    while the genome 10101010 would ahve a fitness of 0.
+
+    :param genome: the individual genome to evaluate
+    :returns:      the number of consecutive pairs of matching bits in the
+                   genome
+    """
+    # TODO: implement this
     return 10
 
 
 def all_small(genome):
-    """Return the number of floats less than 0.1"""
+    """
+    Return the number of floats less than 0.1
+    """
     return len([i for i in genome if i < 0.1])
 
 
 def all_a(genome):
-    """Return the number of "a"s in the given genome"""
+    """
+    Return the number of "a"s in the given genome
+    """
     return len([i for i in genome if i == 'a'])

@@ -19,7 +19,13 @@ import random
 
 
 def single_point(male, female):
-    """Return two new children after performing single point crossover"""
+    """
+    Return two new children after performing single point crossover
+
+    :param   male: the first parent
+    :param female: the second parent
+    :returns:      tuple containing two newly crossed-over children
+    """
     crossover_point = random.randint(0, len(male))
 
     # sexy time
@@ -30,5 +36,12 @@ def single_point(male, female):
 
 
 def uniform(male, female):
-    """Return two new children after performing uniform crossover"""
+    """
+    Return two new children after performing uniform crossover
+
+    :param   male: the first parent
+    :param female: the second parent
+    :returns:      tuple containing two newly crossed-over children
+    """
+    # TODO: implement this
     return male, female

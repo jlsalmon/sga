@@ -17,20 +17,30 @@
 
 
 class Representation(object):
-    """"""
+    """
+    Wrapper class to hold information about the user-supplied representation
+    dictionary.
+    """
 
     def __init__(self, representation):
-        """"""
+        """
+        Constructor
+
+        :param representation: the user-supplied representation dictionary
+        """
         self.representation = representation
 
         self.length = representation['length']
-        self.type = representation['type']
+        self.type   = representation['type']
 
         if 'values' in representation:
             self.values = representation['values']
         else:
             self.values = None
 
+        #-----------------------------------------------------------------------
+        # "min" is only valid for int and float representations
+        #-----------------------------------------------------------------------
         if 'min' in representation:
             self.min = representation['min']
         else:
@@ -39,6 +49,9 @@ class Representation(object):
             else:
                 self.min = None
 
+        #-----------------------------------------------------------------------
+        # "max" is only valid for int and float representations
+        #-----------------------------------------------------------------------
         if 'max' in representation:
             self.max = representation['max']
         else:

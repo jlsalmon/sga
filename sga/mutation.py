@@ -19,9 +19,13 @@ import random
 
 
 def bit_flip(genome):
-    """Return the given genome after flipping a random bit
+    """
+    Mutation function which simply flips a random bit.
 
     Note: only works for binary representations
+
+    :param genome:  the genome representation to be mutated
+    :returns:       the newly mutated genome
     """
     fmt = '{0:0' + str(len(genome)) + 'b}'
     return fmt.format(int(genome, 2) ^ 1
@@ -29,7 +33,12 @@ def bit_flip(genome):
 
 
 def swap(genome):
-    """Return the given genome after randomly swapping two alleles"""
+    """
+    Mutation function which swaps the positions of two alleles.
+
+    :param genome:  the genome representation to be mutated
+    :returns:       the newly mutated genome
+    """
     r1 = random.randint(0, len(genome) - 1)
     r2 = random.randint(0, len(genome) - 1)
     genome[r1], genome[r2] = genome[r2], genome[r1]

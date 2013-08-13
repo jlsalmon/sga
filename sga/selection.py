@@ -20,7 +20,12 @@ import random
 
 
 def roulette(population):
-    """Return a new population list after performing roulette wheel selection"""
+    """
+    Return a new population list after performing roulette wheel selection.
+
+    :param population:  the previous population
+    :returns:           the newly selected population
+    """
     cumulative_fitnesses = list()
     cumulative_fitnesses.append(population[0].fitness())
 
@@ -43,5 +48,10 @@ def roulette(population):
 
 
 def tournament(population):
-    """Return a new population list after performing tournament selection"""
+    """
+    Return a new population list after performing tournament selection
+
+    :param population:  the previous population
+    :returns:           the newly selected population
+    """
     return population
