@@ -144,6 +144,11 @@ class Population(object):
         return self.total_fitness() / len(self.population)
 
     def select_parents(self):
+        """
+        Perform population selection using the user-supplied selection function.
+
+        :returns: the newly-selected population
+        """
         return self.selection_func(self.population)
 
     def crossover(self, probability):
