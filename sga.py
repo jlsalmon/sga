@@ -29,6 +29,9 @@ def setup_args():
     """
     parser = argparse.ArgumentParser(description='Run a genetic algorithm.')
 
+    #---------------------------------------------------------------------------
+    # Add the necessary argument parameters
+    #---------------------------------------------------------------------------
     parser.add_argument('-r', '--representation',
                         dest='representation',
                         action='store',
@@ -97,6 +100,9 @@ def setup_args():
                              '(default: 0.01)',
                         default=0.01)
 
+    #---------------------------------------------------------------------------
+    # Get the user supplied arguments
+    #---------------------------------------------------------------------------
     args = parser.parse_args()
 
     #---------------------------------------------------------------------------
@@ -124,6 +130,9 @@ def run(population, generations):
     """
     Apply selection, crossover and mutation on the given population as many
     times as the given number of generations.
+
+    :param  population: the initial, random population
+    :param generations: the number of generations/cycles to perform
     """
     print 'generation=0, total fitness=%d, mean fitness=%s ' \
           'best individual=%s (%s)' \
@@ -159,6 +168,8 @@ def run(population, generations):
 
 def main():
     """
+    Run a genetic algorithm.
+
     TODO:
         - Allow arbitrary representations (binary, real, enum, ...)
         - Add crossover and mutation funcs for these representations
@@ -180,6 +191,9 @@ def main():
           'fitness function=%s' % (args.selection_scheme, args.crossover_scheme,
                                    args.mutation_scheme, args.fitness_function)
 
+    #---------------------------------------------------------------------------
+    # Generate the initial population
+    #---------------------------------------------------------------------------
     p = Population(representation=Representation(args.representation),
                    size=args.population_size,
                    fitness_func=args.fitness_function,
@@ -188,10 +202,6 @@ def main():
                    mutation_func=args.mutation_scheme,
                    crossover_probability=args.crossover_probability,
                    mutation_probability=args.mutation_probability)
-
-    #---------------------------------------------------------------------------
-    # Generate the initial population
-    #---------------------------------------------------------------------------
     p.gen_population()
 
     #---------------------------------------------------------------------------

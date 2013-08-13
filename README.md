@@ -1,7 +1,8 @@
 sga
 ===
 
-Simple genetic algorithm implementation with user-defined genome representation and fitness/crossover/mutation schemes
+Simple genetic algorithm implementation with user-defined genome representation
+and fitness/crossover/mutation schemes
 
 Usage
 -----
@@ -106,7 +107,7 @@ supplied built-in schemes.
 
 Roulette-wheel and tournament selection are supplied. To add a new selection
 scheme, put your function in [selection.py](sga/selection.py). See that file
-for reference implementations. The selection function takes a single parameter 
+for reference implementations. The selection function takes a single parameter
 which will be the current population object (see [population.py](sga/population.py).
 Your function should return a list containing the newly selected population
 of genome objects (see [genome.py](sga/genome.py)).
