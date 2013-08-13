@@ -51,16 +51,17 @@ which specifies the genome length, type, acceptable values, etc.
 Options
 *******
 
-`"length"`     : the length of the genome
-`"type"`       : the type of the genome ["int", "float", "binary", "enum"]
-`"min"`        : minimum value for a single allele (only valid for int and float
+* `"length"`     : the length of the genome
+* `"type"`       : the type of the genome ["int", "float", "binary", "enum"]
+* `"min"`        : minimum value for a single allele (only valid for int and float
                  types, ignored for others)
-`"max"`        : maximum value for a single allele (only valid for int and float
+* `"max"`        : maximum value for a single allele (only valid for int and float
                  types, ignored for others)
-`"values"`     : list of possible allele values (only valid for enum types)
-`"duplicates"` : whether duplicate alleles are allowed in a single genome
+* `"values"`     : list of possible allele values (only valid for enum types)
+* `"duplicates"` : whether duplicate alleles are allowed in a single genome
 
-Examples:
+Examples
+********
 
 ```
     # Binary
