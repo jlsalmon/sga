@@ -23,7 +23,8 @@ from sga.representation import Representation
 
 
 def setup_args():
-    """Return an object containing the command-line args, once they have been
+    """
+    Return an object containing the command-line args, once they have been
     validated. Exit on error.
     """
     parser = argparse.ArgumentParser(description='Run a genetic algorithm.')
@@ -116,29 +117,38 @@ def setup_args():
     except AttributeError, e:
         parser.error('cannot find function: %s' % e)
 
-    print 'population size=%d, representation=%s, generations=%d, ' \
-          'crossover probability=%f, mutation probability=%f' \
-          % (args.population_size, args.representation, args.generations,
-             args.crossover_probability, args.mutation_probability)
-    print 'selection scheme=%s, crossover scheme=%s, mutation scheme=%s, ' \
-          'fitness function=%s' % (args.selection_scheme, args.crossover_scheme,
-                                   args.mutation_scheme, args.fitness_function)
-
     return args
 
 
 def run(population, generations):
-    """So let's go"""
+    """
+    Apply selection, crossover and mutation on the given population as many
+    times as the given number of generations.
+    """
     print 'generation=0, total fitness=%d, mean fitness=%s ' \
           'best individual=%s (%s)' \
           % (population.total_fitness(), population.mean_fitness(),
              max(population).genes, max(population).fitness())
 
+    #---------------------------------------------------------------------------
+    # Loop for each generation
+    #---------------------------------------------------------------------------
     for i in xrange(1, generations):
+
+        #-----------------------------------------------------------------------
+        # Select the mating pool
+        #-----------------------------------------------------------------------
         selected_parents = population.select_parents()
         population.update_population(selected_parents)
 
+        #-----------------------------------------------------------------------
+        # Apply crossover
+        #-----------------------------------------------------------------------
         population.crossover(population.crossover_probability)
+
+        #-----------------------------------------------------------------------
+        # Apply mutation
+        #-----------------------------------------------------------------------
         population.mutate(population.mutation_probability)
 
         print 'generation=%d, total fitness=%d, mean fitness=%s, ' \
@@ -149,16 +159,26 @@ def run(population, generations):
 
 def main():
     """
-
     TODO:
-            - Allow arbitrary representations (binary, real, enum, ...)
-            - Add crossover and mutation funcs for these representations
-            - Allow stateful/changing mutation and crossover probabilities
-            - Allow constraint handling (repairing infeasible solutions, penalty
-              functions, time-variable penalty functions)
-            - Maybe include constraints in representations (JSON?)
+        - Allow arbitrary representations (binary, real, enum, ...)
+        - Add crossover and mutation funcs for these representations
+        - Allow stateful/changing mutation and crossover probabilities
+        - Allow constraint handling (repairing infeasible solutions, penalty
+          functions, time-variable penalty functions)
+        - Maybe include constraints in representations (JSON?)
     """
     args = setup_args()
+
+    #---------------------------------------------------------------------------
+    # Print a short summary
+    #---------------------------------------------------------------------------
+    print 'population size=%d, representation=%s, generations=%d, ' \
+          'crossover probability=%f, mutation probability=%f' \
+          % (args.population_size, args.representation, args.generations,
+             args.crossover_probability, args.mutation_probability)
+    print 'selection scheme=%s, crossover scheme=%s, mutation scheme=%s, ' \
+          'fitness function=%s' % (args.selection_scheme, args.crossover_scheme,
+                                   args.mutation_scheme, args.fitness_function)
 
     p = Population(representation=Representation(args.representation),
                    size=args.population_size,
