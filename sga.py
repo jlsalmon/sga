@@ -1,0 +1,164 @@
+import argparse
+import json
+import Mutation
+
+from Population import Population
+from Representation import Representation
+
+import Selection
+import Fitness
+import Crossover
+
+
+def setup_args():
+    """"""
+    parser = argparse.ArgumentParser(description='Run a genetic algorithm.')
+
+    parser.add_argument('-r', '--representation',
+                        dest='representation',
+                        action='store',
+                        type=json.loads,
+                        metavar="representation",
+                        help='genome representation dictionary'
+                             ' (default: {"type": "binary", "length": 16} )',
+                        default={"type": "binary", "length": 16})
+    parser.add_argument('-p', '--population-size',
+                        dest='population_size',
+                        action='store',
+                        type=int,
+                        metavar="population_size",
+                        help='population size (default: 100)',
+                        default=100)
+    parser.add_argument('-g', '--generations',
+                        dest='generations',
+                        action='store',
+                        type=int,
+                        metavar="generations",
+                        help='number of generations to simulate '
+                             '(default: 1000)',
+                        default=1000)
+    parser.add_argument('-s', '--selection-scheme',
+                        dest='selection_scheme',
+                        action='store',
+                        metavar="selection_scheme",
+                        help='selection scheme to use [roulette, tournament]'
+                             ' (default: roulette)',
+                        default='roulette')
+    parser.add_argument('-C', '--crossover-scheme',
+                        dest='crossover_scheme',
+                        action='store',
+                        metavar="crossover_scheme",
+                        help='crossover scheme to use [single_point, uniform]'
+                             ' (default: single_point)',
+                        default='single_point')
+    parser.add_argument('-M', '--mutation-scheme',
+                        dest='mutation_scheme',
+                        action='store',
+                        metavar="mutation_scheme",
+                        help='mutation scheme to use [bit_flip, swap]'
+                             ' (default: bit_flip)',
+                        default='bit_flip')
+    parser.add_argument('-f', '--fitness-function',
+                        dest='fitness_function',
+                        action='store',
+                        metavar="fitness_function",
+                        help='fitness function to use [all_ones, matching_bits]'
+                             ' (default: all_ones)',
+                        default='all_ones')
+    parser.add_argument('-c', '--crossover-probability',
+                        dest='crossover_probability',
+                        action='store',
+                        type=float,
+                        metavar="crossover_probability",
+                        help='probability of crossover occurring '
+                             '(default: 0.6)',
+                        default=0.5)
+    parser.add_argument('-m', '--mutation-probability',
+                        dest='mutation_probability',
+                        action='store',
+                        type=float,
+                        metavar="mutation_probability",
+                        help='probability of mutation occurring '
+                             '(default: 0.01)',
+                        default=0.01)
+
+    args = parser.parse_args()
+
+    # Ensure 0 < probability < 1
+    if not (0 < float(args.crossover_probability) < 1) \
+            or not (0 < float(args.mutation_probability) < 1):
+        parser.error('probabilities must be between 0 and 1')
+
+    # Get the function pointers
+    try:
+        args.selection_scheme = getattr(Selection, args.selection_scheme)
+        args.crossover_scheme = getattr(Crossover, args.crossover_scheme)
+        args.mutation_scheme  = getattr(Mutation,  args.mutation_scheme)
+        args.fitness_function = getattr(Fitness,   args.fitness_function)
+    except AttributeError, e:
+        parser.error('cannot find function: %s' % e)
+
+    print 'population size=%d, representation=%s, generations=%d, ' \
+          'crossover probability=%f, mutation probability=%f' \
+          % (args.population_size, args.representation, args.generations,
+             args.crossover_probability, args.mutation_probability)
+    print 'selection scheme=%s, crossover scheme=%s, mutation scheme=%s, ' \
+          'fitness function=%s' % (args.selection_scheme, args.crossover_scheme,
+                                   args.mutation_scheme, args.fitness_function)
+
+    return args
+
+
+def run(population, generations):
+    """So let's go"""
+    print 'generation=0, total fitness=%d, mean fitness=%s ' \
+          'best individual=%s (%s)' \
+          % (population.total_fitness(), population.mean_fitness(),
+             max(population).genes, max(population).fitness())
+
+    for i in xrange(1, generations):
+        selected_parents = population.select_parents()
+        population.update_population(selected_parents)
+
+        population.crossover(population.crossover_probability)
+        population.mutate(population.mutation_probability)
+
+        print 'generation=%d, total fitness=%d, mean fitness=%s, ' \
+              'best individual=%s (%s)' \
+              % (i, population.total_fitness(), population.mean_fitness(),
+                 max(population).genes, max(population).fitness())
+
+
+def main():
+    """
+
+    TODO:
+            - Allow arbitrary representations (binary, real, enum, ...)
+            - Add crossover and mutation funcs for these representations
+            - Allow stateful/changing mutation and crossover probabilities
+            - Allow constraint handling (repairing infeasible solutions, penalty
+              functions, time-variable penalty functions)
+            - Maybe include constraints in representations (JSON?)
+    """
+    args = setup_args()
+
+    p = Population(representation=Representation(args.representation),
+                   size=args.population_size,
+                   fitness_func=args.fitness_function,
+                   selection_func=args.selection_scheme,
+                   crossover_func=args.crossover_scheme,
+                   mutation_func=args.mutation_scheme,
+                   crossover_probability=args.crossover_probability,
+                   mutation_probability=args.mutation_probability)
+
+    # Generate the initial population
+    p.gen_population()
+
+    # Run the GA
+    run(p, args.generations)
+
+#-------------------------------------------------------------------------------
+# Bootstrap
+#-------------------------------------------------------------------------------
+if __name__ == "__main__":
+    main()
