@@ -45,4 +45,50 @@ optional arguments:
 Representation format
 ---------------------
 
+The representation format is a Python dictionary, passed on the command line,
+which specifies the genome length, type, acceptable values, etc.
 
+Options
+*******
+
+`"length"`     : the length of the genome
+`"type"`       : the type of the genome ["int", "float", "binary", "enum"]
+`"min"`        : minimum value for a single allele (only valid for int and float
+                 types, ignored for others)
+`"max"`        : maximum value for a single allele (only valid for int and float
+                 types, ignored for others)
+`"values"`     : list of possible allele values (only valid for enum types)
+`"duplicates"` : whether duplicate alleles are allowed in a single genome
+
+Examples:
+
+```
+    # Binary
+    {
+     "length" : 16,
+     "type"   : "binary"
+    }
+
+    # Integer
+    {
+     "length" : 10,
+     "type"   : "int",
+     "min"    : 0,
+     "max"    : 100
+    }
+
+    # Real values
+    {
+     "length" : 10,
+     "type"   : "float",
+     "min"    : 0.0,
+     "max"    : 1.0
+    }
+
+    # Enum
+    {
+     "length" : 4,
+     "type"   : "enum"
+     "values" : ["red", "blue", "green", "yellow"]
+    }
+```
