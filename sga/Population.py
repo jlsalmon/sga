@@ -1,6 +1,6 @@
 from itertools import izip
 import random
-from Genome import Genome
+from sga.genome import Genome
 
 
 class Population(object):

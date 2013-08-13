@@ -1,13 +1,8 @@
 import argparse
 import json
-import Mutation
-
-from Population import Population
-from Representation import Representation
-
-import Selection
-import Fitness
-import Crossover
+from sga import selection, crossover, mutation, fitness
+from sga.population import Population
+from sga.representation import Representation
 
 
 def setup_args():
@@ -91,10 +86,10 @@ def setup_args():
 
     # Get the function pointers
     try:
-        args.selection_scheme = getattr(Selection, args.selection_scheme)
-        args.crossover_scheme = getattr(Crossover, args.crossover_scheme)
-        args.mutation_scheme  = getattr(Mutation,  args.mutation_scheme)
-        args.fitness_function = getattr(Fitness,   args.fitness_function)
+        args.selection_scheme = getattr(selection, args.selection_scheme)
+        args.crossover_scheme = getattr(crossover, args.crossover_scheme)
+        args.mutation_scheme  = getattr(mutation,  args.mutation_scheme)
+        args.fitness_function = getattr(fitness,   args.fitness_function)
     except AttributeError, e:
         parser.error('cannot find function: %s' % e)
 
