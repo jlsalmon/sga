@@ -11,7 +11,7 @@ Usage
 $ python sga.py --help
 usage: sga.py [-h] [-r representation] [-p population_size] [-g generations]
               [-s selection_scheme] [-C crossover_scheme] [-M mutation_scheme]
-              [-f fitness_function] [-c crossover_probability]
+              [-f fitness_function] [-n] [-N] [-c crossover_probability]
               [-m mutation_probability]
 
 Run a genetic algorithm.
@@ -37,6 +37,12 @@ optional arguments:
   -f fitness_function, --fitness-function fitness_function
                         fitness function to use [all_ones, matching_bits]
                         (default: all_ones)
+  -n, --natural-fitness
+                        use natural fitness values, i.e. higher fitness value
+                        implies fitter individual (default)
+  -N, --no-natural-fitness
+                        do not use natural fitness values, i.e. lower fitness
+                        value implies fitter individual
   -c crossover_probability, --crossover-probability crossover_probability
                         probability of crossover occurring (default: 0.6)
   -m mutation_probability, --mutation-probability mutation_probability
