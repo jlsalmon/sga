@@ -31,7 +31,7 @@ def matching_bits(genome):
     """
     Fitness function based upon the number of pairs of matching bits in the
     representation. E.g. the genome 11001100 would have a fitness value of 4,
-    while the genome 10101010 would ahve a fitness of 0.
+    while the genome 10101010 would have a fitness of 0.
 
     :param genome: the individual genome to evaluate
     :returns:      the number of consecutive pairs of matching bits in the
@@ -39,6 +39,51 @@ def matching_bits(genome):
     """
     # TODO: implement this
     return 10
+
+#-------------------------------------------------------------------------------
+# Static map for the TSP problem with 5 cities
+#-------------------------------------------------------------------------------
+tsp5_map = [
+    [0,  5,  7, 4, 15],
+    [5,  0,  3, 4, 10],
+    [7,  3,  0, 2, 7],
+    [4,  4,  2, 0, 9],
+    [15, 10, 7, 9, 0]
+]
+
+
+def tsp_5(genome):
+    """
+    Travelling salesman problem with 5 cities:
+
+        A   B   C   D   E
+    ----------------------
+    A | -   5   7   4   15
+    B | 5   -   3   4   10
+    C | 7   3   -   2   7
+    D | 4   4   2   -   9
+    E | 15  10  7   9   -
+
+    The genome is simply the tour, i.e. CDABE
+
+    Shorter tour represents higher fitness
+    """
+    #---------------------------------------------------------------------------
+    # Check that the tour is valid, i.e. hasn't been screwed up by crossover or
+    # mutation
+    #---------------------------------------------------------------------------
+    if len(genome) != len(set(genome)):
+        print genome
+        raise ValueError('TSP tour not valid. Fix the crossover/mutation func')
+
+    v0 = tsp5_map[ord(genome[0]) - 65][ord(genome[1]) - 65]
+    v1 = tsp5_map[ord(genome[1]) - 65][ord(genome[2]) - 65]
+    v2 = tsp5_map[ord(genome[2]) - 65][ord(genome[3]) - 65]
+    v3 = tsp5_map[ord(genome[3]) - 65][ord(genome[4]) - 65]
+    v4 = tsp5_map[ord(genome[4]) - 65][ord(genome[0]) - 65]
+
+    v = v0 + v1 + v2 + v3 + v4
+    return v
 
 
 def all_small(genome):
