@@ -21,23 +21,46 @@ class Genome(object):
     Class representing a single genome.
     """
 
-    def __init__(self, genes, representation, fitness_func):
+    def __init__(self, genes, representation, fitness_func, natural_fitness):
         """
         Constructor
 
-        :param          genes:  this genome's actual genes
-        :param representation:  the representation dictionary for this genome
-        :param   fitness_func:  the fitness function for this genome
+        :param           genes:  this genome's actual genes
+        :param  representation:  the representation dictionary for this genome
+        :param    fitness_func:  the fitness function for this genome
+        :param natural_fitness:  use natural fitness values, i.e. higher
+                                 fitness value implies fitter individual
         """
-        self.genes          = genes
-        self.representation = representation
-        self.fitness_func   = fitness_func
+        self.genes           = genes
+        self.representation  = representation
+        self.fitness_func    = fitness_func
+        self.natural_fitness = natural_fitness
 
     def fitness(self):
         """
         Calculate the fitness of this genome.
 
         :returns: the fitness value as returned by the user-specified fitness
+                  function, standardised
+        """
+        raw_fitness = self.fitness_func(self.genes)
+
+        if self.natural_fitness:
+            return raw_fitness
+        else:
+            #-------------------------------------------------------------------
+            # If standardised fitness is zero we have found the best possible
+            # solution.  The evolutionary algorithm should not be continuing
+            # after finding it.
+            #-------------------------------------------------------------------
+            return float('inf') if raw_fitness == 0 else 1.0 / raw_fitness
+
+    def raw_fitness(self):
+        """
+        Calculate the raw (natural) fitness of this genome.
+
+        :returns: the fitness value as returned by the user-specified fitness
                   function
         """
         return self.fitness_func(self.genes)
+

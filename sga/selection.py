@@ -29,6 +29,15 @@ def roulette(population):
     cumulative_fitnesses = list()
     cumulative_fitnesses.append(population[0].fitness())
 
+    #---------------------------------------------------------------------------
+    # Record the cumulative fitness scores.  It doesn't matter whether the
+    # population is sorted or not.  We will use these cumulative scores to work
+    # out an index into the population.  The cumulative array itself is
+    # implicitly sorted since each element must be greater than the previous
+    # one.  The numerical difference between an element and the previous one is
+    # directly proportional to the probability of the corresponding candidate in
+    # the population being selected.
+    #---------------------------------------------------------------------------
     for i in xrange(1, len(population)):
         fitness = population[i].fitness()
         cumulative_fitnesses.append(cumulative_fitnesses[i - 1] + fitness)
@@ -36,7 +45,7 @@ def roulette(population):
     selection = list()
     for i in xrange(0, len(population)):
 
-        random_fitness = int(random.random() * cumulative_fitnesses[-1])
+        random_fitness = random.random() * cumulative_fitnesses[-1]
         index = bisect_left(cumulative_fitnesses, random_fitness)
 
         if index < 0:

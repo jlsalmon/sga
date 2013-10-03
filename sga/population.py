@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #-------------------------------------------------------------------------------
+import copy
 
 import random
 from itertools import izip
@@ -26,8 +27,8 @@ class Population(object):
     """
 
     def __init__(self, representation, size, fitness_func, selection_func,
-                 crossover_func, mutation_func, crossover_probability,
-                 mutation_probability):
+                 crossover_func, mutation_func, natural_fitness,
+                 crossover_probability, mutation_probability):
         """
         Constructor
 
@@ -38,6 +39,8 @@ class Population(object):
         :param        selection_func: the user-specified selection function
         :param        crossover_func: the user-specified crossover function
         :param         mutation_func: the user-specified mutation function
+        :param       natural_fitness: use natural fitness values, i.e. higher
+                                      fitness value implies fitter individual
         :param crossover_probability: the user-specified crossover probability
         :param  mutation_probability: the user-specified mutation probability
         """
@@ -50,11 +53,12 @@ class Population(object):
             size += 1
         self.size = size
 
-        self.representation = representation
-        self.fitness_func   = fitness_func
-        self.selection_func = selection_func
-        self.crossover_func = crossover_func
-        self.mutation_func  = mutation_func
+        self.representation  = representation
+        self.fitness_func    = fitness_func
+        self.selection_func  = selection_func
+        self.crossover_func  = crossover_func
+        self.mutation_func   = mutation_func
+        self.natural_fitness = natural_fitness
         self.crossover_probability = crossover_probability
         self.mutation_probability  = mutation_probability
 
@@ -82,7 +86,8 @@ class Population(object):
                 gene = Genome(fmt.format(
                               random.randint(0, 2**self.representation.length)),
                               representation=self.representation,
-                              fitness_func=self.fitness_func)
+                              fitness_func=self.fitness_func,
+                              natural_fitness=self.natural_fitness)
                 self.population.append(gene)
 
         #-----------------------------------------------------------------------
@@ -94,7 +99,8 @@ class Population(object):
                                               self.representation.max)
                                for _ in xrange(self.representation.length)],
                               representation=self.representation,
-                              fitness_func=self.fitness_func)
+                              fitness_func=self.fitness_func,
+                              natural_fitness=self.natural_fitness)
                 self.population.append(gene)
 
         #-----------------------------------------------------------------------
@@ -106,7 +112,8 @@ class Population(object):
                                               self.representation.max)
                                for _ in xrange(self.representation.length)],
                               representation=self.representation,
-                              fitness_func=self.fitness_func)
+                              fitness_func=self.fitness_func,
+                              natural_fitness=self.natural_fitness)
                 self.population.append(gene)
 
         #-----------------------------------------------------------------------
@@ -114,13 +121,26 @@ class Population(object):
         #-----------------------------------------------------------------------
         elif self.representation.type == 'enum':
             for _ in xrange(self.size):
-                # TODO: disallow duplicates if necessary
-                gene = [self.representation.values[random.randint(0,
-                                            self.representation.length) - 1]
-                        for _ in xrange(self.representation.length)]
+
+                #---------------------------------------------------------------
+                # Allow duplicates
+                #---------------------------------------------------------------
+                if self.representation.duplicates:
+                    gene = [self.representation.values[random.randint(0,
+                            self.representation.length) - 1]
+                            for _ in xrange(self.representation.length)]
+                #---------------------------------------------------------------
+                # Disallow duplicates
+                #---------------------------------------------------------------
+                else:
+                    import copy
+                    gene = copy.copy(self.representation.values)
+                    random.shuffle(gene)
+
                 gene = Genome(gene,
                               representation=self.representation,
-                              fitness_func=self.fitness_func)
+                              fitness_func=self.fitness_func,
+                              natural_fitness=self.natural_fitness)
                 self.population.append(gene)
 
     def update_population(self, population):
@@ -135,13 +155,39 @@ class Population(object):
         """
         Return the total fitness of all of the individuals in the population
         """
-        return sum([i.fitness() for i in self.population])
+        return sum([i.raw_fitness() for i in self.population])
 
     def mean_fitness(self):
         """
         Return the mean fitness of all of the individuals in the population
         """
         return self.total_fitness() / len(self.population)
+
+    def max_individual(self):
+        """
+        Return the individual with the maximum (highest) fitness of all the
+        individuals in the population
+        """
+        max_indiv = self.population[0]
+
+        for i in self.population:
+            if i.raw_fitness() > max_indiv.fitness():
+                max_indiv = i
+
+        return max_indiv
+
+    def min_individual(self):
+        """
+        Return the individual with the  minimum (lowest) fitness of all the
+        individuals in the population
+        """
+        min_indiv = self.population[0]
+
+        for i in self.population:
+            if i.raw_fitness() < min_indiv.fitness():
+                min_indiv = i
+
+        return min_indiv
 
     def select_parents(self):
         """
@@ -172,8 +218,10 @@ class Population(object):
             if random.random() <= probability:
                 child1, child2 = self.crossover_func(male.genes, female.genes)
 
-            result.append(Genome(child1, self.representation, self.fitness_func))
-            result.append(Genome(child2, self.representation, self.fitness_func))
+            result.append(Genome(child1, self.representation,
+                                 self.fitness_func, self.natural_fitness))
+            result.append(Genome(child2, self.representation,
+                                 self.fitness_func, self.natural_fitness))
 
         assert len(result) == len(self.population)
 
@@ -189,9 +237,21 @@ class Population(object):
         :param probability: the probability that mutation will occur for each
                             individual
         """
+        result = list()
+        # print 'before mutation:', [x.fitness() for x in self.population]
+
         for i in self.population:
+            indiv = copy.deepcopy(i)
+
             if random.random() <= probability:
-                i.genes = self.mutation_func(i.genes)
+                # print 'mutating'
+                indiv.genes = self.mutation_func(indiv.genes)
+
+            result.append(indiv)
+
+        assert len(result) == len(self.population)
+        self.update_population(result)
+        # print 'after mutation: ', [x.fitness() for x in self.population]
 
     def pairwise(self, iterable):
         """

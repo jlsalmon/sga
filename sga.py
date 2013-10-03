@@ -83,6 +83,16 @@ def setup_args():
                         help='fitness function to use [all_ones, matching_bits]'
                              ' (default: all_ones)',
                         default='all_ones')
+    parser.add_argument('-n', '--natural-fitness',
+                        dest='natural_fitness',
+                        action='store_true',
+                        help='use natural fitness values, i.e. higher fitness '
+                             'value implies fitter individual (default)')
+    parser.add_argument('-N', '--no-natural-fitness',
+                        dest='natural_fitness',
+                        action='store_false',
+                        help='do not use natural fitness values, i.e. lower '
+                             'fitness value implies fitter individual')
     parser.add_argument('-c', '--crossover-probability',
                         dest='crossover_probability',
                         action='store',
@@ -99,6 +109,8 @@ def setup_args():
                         help='probability of mutation occurring '
                              '(default: 0.01)',
                         default=0.01)
+
+    parser.set_defaults(natural_fitness=True)
 
     #---------------------------------------------------------------------------
     # Get the user supplied arguments
@@ -134,10 +146,15 @@ def run(population, generations):
     :param  population: the initial, random population
     :param generations: the number of generations/cycles to perform
     """
-    print 'generation=0, total fitness=%d, mean fitness=%s ' \
-          'best individual=%s (%s)' \
+    print 'generation=0, total fitness=%d, mean fitness=%s, ' \
+          'min individual=%s (%s), max individual=%s (%s)' \
           % (population.total_fitness(), population.mean_fitness(),
-             max(population).genes, max(population).fitness())
+             population.min_individual().genes,
+             population.min_individual().raw_fitness(),
+             population.max_individual().genes,
+             population.max_individual().raw_fitness())
+    print [i.raw_fitness() for i in population]
+    print
 
     #---------------------------------------------------------------------------
     # Loop for each generation
@@ -161,9 +178,14 @@ def run(population, generations):
         population.mutate(population.mutation_probability)
 
         print 'generation=%d, total fitness=%d, mean fitness=%s, ' \
-              'best individual=%s (%s)' \
+              'min individual=%s (%s), max individual=%s (%s)' \
               % (i, population.total_fitness(), population.mean_fitness(),
-                 max(population).genes, max(population).fitness())
+                 population.min_individual().genes,
+                 population.min_individual().raw_fitness(),
+                 population.max_individual().genes,
+                 population.max_individual().raw_fitness())
+        print [i.raw_fitness() for i in population]
+        print
 
 
 def main():
@@ -188,18 +210,22 @@ def main():
           % (args.population_size, args.representation, args.generations,
              args.crossover_probability, args.mutation_probability)
     print 'selection scheme=%s, crossover scheme=%s, mutation scheme=%s, ' \
-          'fitness function=%s' % (args.selection_scheme, args.crossover_scheme,
-                                   args.mutation_scheme, args.fitness_function)
+          'fitness function=%s, natural_fitness=%s' \
+          % (args.selection_scheme, args.crossover_scheme, args.mutation_scheme,
+             args.fitness_function, args.natural_fitness)
 
     #---------------------------------------------------------------------------
     # Generate the initial population
     #---------------------------------------------------------------------------
-    p = Population(representation=Representation(args.representation),
+    representation = '{"length":5,"type":"enum","values":["A","B","C","D","E"],"duplicates":false}'
+    p = Population(representation=Representation(json.loads(representation)),
+                                                 #args.representation),
                    size=args.population_size,
                    fitness_func=args.fitness_function,
                    selection_func=args.selection_scheme,
                    crossover_func=args.crossover_scheme,
                    mutation_func=args.mutation_scheme,
+                   natural_fitness=args.natural_fitness,
                    crossover_probability=args.crossover_probability,
                    mutation_probability=args.mutation_probability)
     p.gen_population()
