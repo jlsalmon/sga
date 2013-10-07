@@ -193,6 +193,8 @@ class Population(object):
         """
         Perform population selection using the user-supplied selection function.
         """
+        # TODO: implement "elitism"
+
         selected_parents = self.selection_func(self.population)
         self.update_population(selected_parents)
 
@@ -237,20 +239,15 @@ class Population(object):
                             individual
         """
         result = list()
-        # print 'before mutation:', [x.fitness() for x in self.population]
 
         for i in self.population:
             indiv = copy.deepcopy(i)
 
-            if random.random() <= probability:
-                # print 'mutating'
-                indiv.genes = self.mutation_func(indiv.genes)
-
+            indiv.genes = self.mutation_func(indiv.genes, probability)
             result.append(indiv)
 
         assert len(result) == len(self.population)
         self.update_population(result)
-        # print 'after mutation: ', [x.fitness() for x in self.population]
 
     def pairwise(self, iterable):
         """

@@ -18,28 +18,35 @@
 import random
 
 
-def bit_flip(genome):
+def bit_flip(genome, probability):
     """
-    Mutation function which simply flips a random bit.
+    Mutation function which flips each bit in the given genome with the given
+    probability.
 
     Note: only works for binary representations
 
     :param genome:  the genome representation to be mutated
-    :returns:       the newly mutated genome
+    :returns:       the genome, possibly mutated
     """
-    fmt = '{0:0' + str(len(genome)) + 'b}'
-    return fmt.format(int(genome, 2) ^ 1
-                      << random.randint(0, len(genome)))[:len(genome)]
+    genome = list(genome)
+
+    for i, gene in enumerate(genome):
+        if random.random() < probability:
+            genome[i] = '1' if gene == '0' else '0'
+
+    return ''.join([gene for gene in genome])
 
 
-def swap(genome):
+def swap(genome, probability):
     """
-    Mutation function which swaps the positions of two alleles.
+    Mutation function which swaps the positions of two genes with the given
+    probability.
 
     :param genome:  the genome representation to be mutated
-    :returns:       the newly mutated genome
+    :returns:       the genome, possibly mutated
     """
-    r1 = random.randint(0, len(genome) - 1)
-    r2 = random.randint(0, len(genome) - 1)
-    genome[r1], genome[r2] = genome[r2], genome[r1]
-    return genome
+    if random.random() < probability:
+        r1 = random.randint(0, len(genome) - 1)
+        r2 = random.randint(0, len(genome) - 1)
+        genome[r1], genome[r2] = genome[r2], genome[r1]
+        return genome
