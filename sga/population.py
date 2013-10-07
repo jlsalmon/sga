@@ -28,7 +28,7 @@ class Population(object):
 
     def __init__(self, representation, size, fitness_func, selection_func,
                  crossover_func, mutation_func, natural_fitness,
-                 crossover_probability, mutation_probability):
+                 crossover_probability, mutation_probability, elite_count):
         """
         Constructor
 
@@ -43,8 +43,11 @@ class Population(object):
                                       fitness value implies fitter individual
         :param crossover_probability: the user-specified crossover probability
         :param  mutation_probability: the user-specified mutation probability
+        :param           elite_count: the number of fittest individuals to
+                                      exclude from selection/crossover/mutation
         """
         self.population = list()
+        self.elites     = list()
 
         #-----------------------------------------------------------------------
         # Ensure even population size
@@ -61,6 +64,13 @@ class Population(object):
         self.natural_fitness = natural_fitness
         self.crossover_probability = crossover_probability
         self.mutation_probability  = mutation_probability
+
+        #-----------------------------------------------------------------------
+        # Ensure even elite count
+        #-----------------------------------------------------------------------
+        if elite_count % 2 != 0:
+            elite_count += 1
+        self.elite_count     = elite_count
 
     def __iter__(self):
         return iter(self.population)
@@ -189,12 +199,28 @@ class Population(object):
 
         return min_indiv
 
+    def store_elites(self):
+        """
+        Perform elitism by withholding a certain number of the fittest
+        individuals from selection/crossover/mutation.
+        """
+        del self.elites[:]
+        
+        for i in xrange(self.elite_count):
+            max_indiv = self.max_individual()
+            self.elites.append(max_indiv)
+            self.population.remove(max_indiv)
+
+    def load_elites(self):
+        """
+        Re-add the withheld elites back into the population
+        """
+        self.population += self.elites
+
     def select_parents(self):
         """
         Perform population selection using the user-supplied selection function.
         """
-        # TODO: implement "elitism"
-
         selected_parents = self.selection_func(self.population)
         self.update_population(selected_parents)
 

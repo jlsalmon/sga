@@ -38,8 +38,8 @@ def setup_args():
                         type=json.loads,
                         metavar="representation",
                         help='genome representation dictionary'
-                             ' (default: {"type": "binary", "length": 16} )',
-                        default={"type": "binary", "length": 16})
+                             ' (default: {"type": "binary", "length": 50} )',
+                        default={"type": "binary", "length": 50})
     parser.add_argument('-p', '--population-size',
                         dest='population_size',
                         action='store',
@@ -109,6 +109,15 @@ def setup_args():
                         help='probability of mutation occurring '
                              '(default: 0.01)',
                         default=0.01)
+    parser.add_argument('-e', '--elite-count',
+                        dest='elite_count',
+                        action='store',
+                        type=int,
+                        metavar="elite_count",
+                        help='number of fittest individuals to hold back at '
+                             'each generation. Will be rounded up to an even '
+                             'number (default: 6)',
+                        default=6)
 
     parser.set_defaults(natural_fitness=True)
 
@@ -162,6 +171,11 @@ def run(population, generations):
     for i in xrange(1, generations):
 
         #-----------------------------------------------------------------------
+        # Perform elitism
+        #-----------------------------------------------------------------------
+        population.store_elites()
+
+        #-----------------------------------------------------------------------
         # Select the mating pool
         #-----------------------------------------------------------------------
         population.select_parents()
@@ -175,6 +189,11 @@ def run(population, generations):
         # Apply mutation
         #-----------------------------------------------------------------------
         population.mutate(population.mutation_probability)
+
+        #-----------------------------------------------------------------------
+        # Re-add the elites to the population
+        #-----------------------------------------------------------------------
+        population.load_elites()
 
         print 'generation=%d, total fitness=%d, mean fitness=%s, ' \
               'min individual=%s (%s), max individual=%s (%s)' \
@@ -205,9 +224,10 @@ def main():
     # Print a short summary
     #---------------------------------------------------------------------------
     print 'population size=%d, representation=%s, generations=%d, ' \
-          'crossover probability=%f, mutation probability=%f' \
+          'crossover probability=%f, mutation probability=%f, elite count=%d' \
           % (args.population_size, args.representation, args.generations,
-             args.crossover_probability, args.mutation_probability)
+             args.crossover_probability, args.mutation_probability,
+             args.elite_count)
     print 'selection scheme=%s, crossover scheme=%s, mutation scheme=%s, ' \
           'fitness function=%s, natural_fitness=%s' \
           % (args.selection_scheme, args.crossover_scheme, args.mutation_scheme,
@@ -226,13 +246,16 @@ def main():
                    mutation_func=args.mutation_scheme,
                    natural_fitness=args.natural_fitness,
                    crossover_probability=args.crossover_probability,
-                   mutation_probability=args.mutation_probability)
+                   mutation_probability=args.mutation_probability,
+                   elite_count=args.elite_count)
     p.gen_population()
 
     #---------------------------------------------------------------------------
     # Run the GA
     #---------------------------------------------------------------------------
     run(p, args.generations)
+
+    # TODO: print graph summary of avg fitness over time
 
 #-------------------------------------------------------------------------------
 # Bootstrap
