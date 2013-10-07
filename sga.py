@@ -216,9 +216,9 @@ def main():
     #---------------------------------------------------------------------------
     # Generate the initial population
     #---------------------------------------------------------------------------
-    representation = '{"length":5,"type":"enum","values":["A","B","C","D","E"],"duplicates":false}'
-    p = Population(representation=Representation(json.loads(representation)),
-                                                 #args.representation),
+    # representation = '{"length":5,"type":"enum","values":["A","B","C","D",
+    # "E"],"duplicates":false}'
+    p = Population(representation=Representation(args.representation),
                    size=args.population_size,
                    fitness_func=args.fitness_function,
                    selection_func=args.selection_scheme,
