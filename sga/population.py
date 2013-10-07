@@ -192,10 +192,9 @@ class Population(object):
     def select_parents(self):
         """
         Perform population selection using the user-supplied selection function.
-
-        :returns: the newly-selected population
         """
-        return self.selection_func(self.population)
+        selected_parents = self.selection_func(self.population)
+        self.update_population(selected_parents)
 
     def crossover(self, probability):
         """

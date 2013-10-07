@@ -164,8 +164,7 @@ def run(population, generations):
         #-----------------------------------------------------------------------
         # Select the mating pool
         #-----------------------------------------------------------------------
-        selected_parents = population.select_parents()
-        population.update_population(selected_parents)
+        population.select_parents()
 
         #-----------------------------------------------------------------------
         # Apply crossover
