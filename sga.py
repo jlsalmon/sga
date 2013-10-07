@@ -46,7 +46,7 @@ def setup_args():
                         type=int,
                         metavar="population_size",
                         help='population size (default: 100)',
-                        default=100)
+                        default=50)
     parser.add_argument('-g', '--generations',
                         dest='generations',
                         action='store',
@@ -54,7 +54,7 @@ def setup_args():
                         metavar="generations",
                         help='number of generations to simulate '
                              '(default: 1000)',
-                        default=1000)
+                        default=50)
     parser.add_argument('-s', '--selection-scheme',
                         dest='selection_scheme',
                         action='store',
