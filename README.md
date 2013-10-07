@@ -12,7 +12,7 @@ $ python sga.py --help
 usage: sga.py [-h] [-r representation] [-p population_size] [-g generations]
               [-s selection_scheme] [-C crossover_scheme] [-M mutation_scheme]
               [-f fitness_function] [-n] [-N] [-c crossover_probability]
-              [-m mutation_probability]
+              [-m mutation_probability] [-e elite_count]
 
 Run a genetic algorithm.
 
@@ -20,7 +20,7 @@ optional arguments:
   -h, --help            show this help message and exit
   -r representation, --representation representation
                         genome representation dictionary (default: {"type":
-                        "binary", "length": 16} )
+                        "binary", "length": 50} )
   -p population_size, --population-size population_size
                         population size (default: 100)
   -g generations, --generations generations
@@ -47,6 +47,11 @@ optional arguments:
                         probability of crossover occurring (default: 0.6)
   -m mutation_probability, --mutation-probability mutation_probability
                         probability of mutation occurring (default: 0.01)
+  -e elite_count, --elite-count elite_count
+                        number of fittest individuals to hold back at each
+                        generation. Will be rounded up to an even number
+                        (default: 6)
+
 ```
 
 Representation format
@@ -137,8 +142,8 @@ function to [mutation.py](sga/mutation.py). The function will take a single geno
 of your supplied representational format, and it should return a newly mutated
 genome of the same format.
 
-The library code determines whether your mutation function is called, so you do
-not need to check for it in your code.
+The mutation probability will also be passed to the mutation function, and should
+be taken into account when mutating.
 
 Contact
 -------
