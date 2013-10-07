@@ -18,6 +18,7 @@
 import argparse
 import json
 from sga import selection, crossover, mutation, fitness
+from sga.plotter import Plotter
 from sga.population import Population
 from sga.representation import Representation
 
@@ -155,6 +156,8 @@ def run(population, generations):
     :param  population: the initial, random population
     :param generations: the number of generations/cycles to perform
     """
+    plotter = Plotter()
+
     print 'generation=0, total fitness=%d, mean fitness=%s, ' \
           'min individual=%s (%s), max individual=%s (%s)' \
           % (population.total_fitness(), population.mean_fitness(),
@@ -162,8 +165,9 @@ def run(population, generations):
              population.min_individual().raw_fitness(),
              population.max_individual().genes,
              population.max_individual().raw_fitness())
-    print [i.raw_fitness() for i in population]
-    print
+
+    plotter.update(population.mean_fitness(),
+                   population.max_individual().raw_fitness())
 
     #---------------------------------------------------------------------------
     # Loop for each generation
@@ -202,9 +206,11 @@ def run(population, generations):
                  population.min_individual().raw_fitness(),
                  population.max_individual().genes,
                  population.max_individual().raw_fitness())
-        print [i.raw_fitness() for i in population]
-        print
 
+        plotter.update(population.mean_fitness(),
+                       population.max_individual().raw_fitness())
+
+    plotter.plot()
 
 def main():
     """
@@ -254,8 +260,6 @@ def main():
     # Run the GA
     #---------------------------------------------------------------------------
     run(p, args.generations)
-
-    # TODO: print graph summary of avg fitness over time
 
 #-------------------------------------------------------------------------------
 # Bootstrap

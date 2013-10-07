@@ -205,7 +205,7 @@ class Population(object):
         individuals from selection/crossover/mutation.
         """
         del self.elites[:]
-        
+
         for i in xrange(self.elite_count):
             max_indiv = self.max_individual()
             self.elites.append(max_indiv)
