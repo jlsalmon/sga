@@ -171,7 +171,7 @@ class Population(object):
         max_indiv = self.population[0]
 
         for i in self.population:
-            if i.raw_fitness() > max_indiv.fitness():
+            if i.raw_fitness() > max_indiv.raw_fitness():
                 max_indiv = i
 
         return max_indiv
@@ -184,7 +184,7 @@ class Population(object):
         min_indiv = self.population[0]
 
         for i in self.population:
-            if i.raw_fitness() < min_indiv.fitness():
+            if i.raw_fitness() < min_indiv.raw_fitness():
                 min_indiv = i
 
         return min_indiv
