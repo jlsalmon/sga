@@ -22,16 +22,19 @@ class Plotter(object):
     def __init__(self):
         self.average_fitnesses = list()
         self.highest_fitnesses = list()
+        self.lowest_fitnesses  = list()
 
-    def update(self, average_fitness, highest_fitness):
+    def update(self, average_fitness, highest_fitness, lowest_fitness):
         self.average_fitnesses.append(average_fitness)
         self.highest_fitnesses.append(highest_fitness)
+        self.lowest_fitnesses.append(lowest_fitness)
 
     def plot(self):
         pyplot.plot(self.average_fitnesses)
         pyplot.plot(self.highest_fitnesses)
+        pyplot.plot(self.lowest_fitnesses)
         pyplot.ylabel('fitness')
         pyplot.xlabel('generation')
-        pyplot.legend(['average fitness', 'max individual'],
+        pyplot.legend(['average fitness', 'max individual', 'min individual'],
                       loc='lower right')
         pyplot.show()
