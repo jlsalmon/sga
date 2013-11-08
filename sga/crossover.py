@@ -43,5 +43,21 @@ def uniform(male, female):
     :param female: the second parent
     :returns:      tuple containing two newly crossed-over children
     """
-    # TODO: implement this
+    ratio = 0.5
+    child1 = ""
+    child2 = ""
+
+    for i, gene in enumerate(male):
+        if random.random() > ratio:
+            child1 += gene
+            child2 += female[i]
+        else:
+            child1 += female[i]
+            child2 += gene
+
+    return child1, child2
+
+
+def noop(male, female):
+    """Empty crossover function"""
     return male, female
