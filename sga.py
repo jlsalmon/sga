@@ -167,7 +167,8 @@ def run(population, generations):
              population.max_individual().raw_fitness())
 
     plotter.update(population.mean_fitness(),
-                   population.max_individual().raw_fitness())
+                   population.max_individual().fitness(),
+                   population.min_individual().fitness())
 
     #---------------------------------------------------------------------------
     # Loop for each generation
@@ -206,11 +207,14 @@ def run(population, generations):
                  population.min_individual().raw_fitness(),
                  population.max_individual().genes,
                  population.max_individual().raw_fitness())
+        # print [p.genes for p in population]
 
         plotter.update(population.mean_fitness(),
-                       population.max_individual().raw_fitness())
+                       population.max_individual().fitness(),
+                       population.min_individual().fitness())
 
     plotter.plot()
+
 
 def main():
     """
