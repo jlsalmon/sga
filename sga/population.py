@@ -165,7 +165,7 @@ class Population(object):
         """
         Return the total fitness of all of the individuals in the population
         """
-        return sum([i.raw_fitness() for i in self.population])
+        return sum([i.fitness() for i in self.population])
 
     def mean_fitness(self):
         """
@@ -181,7 +181,7 @@ class Population(object):
         max_indiv = self.population[0]
 
         for i in self.population:
-            if i.raw_fitness() > max_indiv.raw_fitness():
+            if i.fitness() > max_indiv.fitness():
                 max_indiv = i
 
         return max_indiv
@@ -194,7 +194,7 @@ class Population(object):
         min_indiv = self.population[0]
 
         for i in self.population:
-            if i.raw_fitness() < min_indiv.raw_fitness():
+            if i.fitness() < min_indiv.fitness():
                 min_indiv = i
 
         return min_indiv
