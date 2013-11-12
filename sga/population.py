@@ -19,6 +19,7 @@ import copy
 import random
 from itertools import izip
 from sga.genome import Genome
+from sga.plotter import Plotter
 
 
 class Population(object):
@@ -56,21 +57,99 @@ class Population(object):
             size += 1
         self.size = size
 
+        #-----------------------------------------------------------------------
+        # Ensure 0 < probability < 1
+        #-----------------------------------------------------------------------
+        if not (0 < float(crossover_probability) < 1) \
+                or not (0 < float(mutation_probability) < 1):
+            raise ValueError('probabilities must be between 0 and 1')
+
+        self.selection_func = selection_func
+        self.crossover_func = crossover_func
+        self.mutation_func  = mutation_func
+        self.fitness_func   = fitness_func
+
         self.representation  = representation
-        self.fitness_func    = fitness_func
-        self.selection_func  = selection_func
-        self.crossover_func  = crossover_func
-        self.mutation_func   = mutation_func
         self.natural_fitness = natural_fitness
         self.crossover_probability = crossover_probability
         self.mutation_probability  = mutation_probability
 
-        #-----------------------------------------------------------------------
+        #-------------------------------------------------------------------
         # Ensure even elite count
-        #-----------------------------------------------------------------------
+        #-------------------------------------------------------------------
         if elite_count % 2 != 0:
             elite_count += 1
-        self.elite_count     = elite_count
+        self.elite_count = elite_count
+
+    def run(self, generations):
+        """
+        Apply selection, crossover and mutation on the given population as many
+        times as the given number of generations.
+
+        :param  population: the initial, random population
+        :param generations: the number of generations/cycles to perform
+        """
+        plotter = Plotter()
+
+        print 'generation=0, total fitness=%d, mean fitness=%s, ' \
+              'min individual=%s (%s), max individual=%s (%s)' \
+              % (self.total_fitness(), self.mean_fitness(),
+                 self.min_individual().genes,
+                 self.min_individual().raw_fitness(),
+                 self.max_individual().genes,
+                 self.max_individual().raw_fitness())
+
+        plotter.update(self.mean_fitness(),
+                       self.max_individual().fitness(),
+                       self.min_individual().fitness())
+
+        #-----------------------------------------------------------------------
+        # Loop for each generation
+        #-----------------------------------------------------------------------
+        for i in xrange(1, generations):
+
+            #-------------------------------------------------------------------
+            # Perform elitism
+            #-------------------------------------------------------------------
+            self.store_elites()
+
+            #-------------------------------------------------------------------
+            # Select the mating pool
+            #-------------------------------------------------------------------
+            self.select_parents()
+
+            #-------------------------------------------------------------------
+            # Apply crossover
+            #-------------------------------------------------------------------
+            self.crossover(self.crossover_probability)
+
+            #-------------------------------------------------------------------
+            # Apply mutation
+            #-------------------------------------------------------------------
+            self.mutate(self.mutation_probability)
+
+            #-------------------------------------------------------------------
+            # Re-add the elites to the population
+            #-------------------------------------------------------------------
+            self.load_elites()
+
+            min_individual = self.min_individual()
+            max_individual = self.max_individual()
+
+            print 'generation=%d, total fitness=%d, mean fitness=%s, ' \
+                  'min individual=%s (%s), max individual=%s (%s)' \
+                  % (i, self.total_fitness(), self.mean_fitness(),
+                     min_individual.genes,
+                     min_individual.raw_fitness(),
+                     max_individual.genes,
+                     max_individual.raw_fitness())
+            # print [p.genes for p in population]
+
+            plotter.update(self.mean_fitness(),
+                           max_individual.fitness(),
+                           min_individual.fitness())
+
+        plotter.plot()
 
     def __iter__(self):
         return iter(self.population)
