@@ -346,10 +346,8 @@ class Population(object):
         result = list()
 
         for i in self.population:
-            indiv = copy.deepcopy(i)
-
-            indiv.genes = self.mutation_func(indiv.genes, probability)
-            result.append(indiv)
+            i.genes = self.mutation_func(copy.deepcopy(i.genes), probability)
+            result.append(i)
 
         assert len(result) == len(self.population)
         self.update_population(result)
