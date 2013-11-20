@@ -50,3 +50,5 @@ def swap(genome, probability):
         r2 = random.randint(0, len(genome) - 1)
         genome[r1], genome[r2] = genome[r2], genome[r1]
         return genome
+
+    return genome
