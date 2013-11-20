@@ -130,10 +130,10 @@ def setup_args():
     # Get the function pointers
     #-----------------------------------------------------------------------
     try:
-        args.selection_func = getattr(selection, args.selection_func)
-        args.crossover_func = getattr(crossover, args.crossover_func)
-        args.mutation_func  = getattr(mutation,  args.mutation_func)
-        args.fitness_func   = getattr(fitness,   args.fitness_func)
+        args.selection_scheme = getattr(selection, args.selection_scheme)
+        args.crossover_scheme = getattr(crossover, args.crossover_scheme)
+        args.mutation_scheme  = getattr(mutation,  args.mutation_scheme)
+        args.fitness_function = getattr(fitness,   args.fitness_function)
     except AttributeError, e:
         raise e
 
