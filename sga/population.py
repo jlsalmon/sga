@@ -29,7 +29,8 @@ class Population(object):
 
     def __init__(self, representation, size, fitness_func, selection_func,
                  crossover_func, mutation_func, natural_fitness,
-                 crossover_probability, mutation_probability, elite_count):
+                 crossover_probability, mutation_probability, elite_count,
+                 tournament_size):
         """
         Constructor
 
@@ -46,6 +47,7 @@ class Population(object):
         :param  mutation_probability: the user-specified mutation probability
         :param           elite_count: the number of fittest individuals to
                                       exclude from selection/crossover/mutation
+        :param       tournament_size: the size of a tournament selection group
         """
         self.population = list()
         self.elites     = list()
@@ -80,6 +82,8 @@ class Population(object):
         if elite_count % 2 != 0:
             elite_count += 1
         self.elite_count = elite_count
+
+        self.tournament_size = tournament_size
 
     def run(self, generations):
         """
@@ -346,6 +350,9 @@ class Population(object):
         result = list()
 
         for i in self.population:
+            #-------------------------------------------------------------------
+            # Make a copy of the genes
+            #-------------------------------------------------------------------
             i.genes = self.mutation_func(copy.deepcopy(i.genes), probability)
             result.append(i)
 

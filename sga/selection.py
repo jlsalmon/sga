@@ -63,14 +63,11 @@ def tournament(population):
     :param population:  the previous population
     :returns:           the newly selected population
     """
-    # TODO: Possibly add --tournament-size cli param
-
-    tournament_size = len(population) / 10
-
-    selection = list()
+    tournament_size = population.tournament_size \
+        if population.tournament_size else 10
+    selection       = list()
 
     while len(selection) < len(population):
-
         tournament_list = list()
 
         for _ in xrange(tournament_size):
@@ -82,8 +79,6 @@ def tournament(population):
             if tournament_list[i].fitness() > max_indiv.fitness():
                 max_indiv = tournament_list[i]
 
-        # print 'selected for tournament: %s (%s)' % (max_indiv.genes,
-        #                                             max_indiv.fitness())
         selection.append(max_indiv)
 
     return selection

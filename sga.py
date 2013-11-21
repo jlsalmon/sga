@@ -118,6 +118,13 @@ def setup_args():
                              'each generation. Will be rounded up to an even '
                              'number (default: 6)',
                         default=6)
+    parser.add_argument('-t', '--tournament-size',
+                        dest='tournament_size',
+                        action='store',
+                        type=int,
+                        metavar='tournament_size',
+                        help='size of a tournament group, if tournament '
+                             'selection is being used (default: 10)')
 
     parser.set_defaults(natural_fitness=True)
 
@@ -170,8 +177,6 @@ def main():
     #---------------------------------------------------------------------------
     # Generate the initial population
     #---------------------------------------------------------------------------
-    # representation = '{"length":5,"type":"enum","values":["A","B","C","D",
-    # "E"],"duplicates":false}'
     p = Population(representation=Representation(args.representation),
                    size=args.population_size,
                    fitness_func=args.fitness_function,
@@ -181,7 +186,8 @@ def main():
                    natural_fitness=args.natural_fitness,
                    crossover_probability=args.crossover_probability,
                    mutation_probability=args.mutation_probability,
-                   elite_count=args.elite_count)
+                   elite_count=args.elite_count,
+                   tournament_size=args.tournament_size)
     p.gen_population()
 
     #---------------------------------------------------------------------------
