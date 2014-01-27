@@ -35,6 +35,10 @@ class Genome(object):
         self.representation  = representation
         self.fitness_func    = fitness_func
         self.natural_fitness = natural_fitness
+        self._fitness        = 0
+
+    def __repr__(self):
+        return repr(self.genes)
 
     def fitness(self):
         """
@@ -43,17 +47,23 @@ class Genome(object):
         :returns: the fitness value as returned by the user-specified fitness
                   function, standardised
         """
+        if self._fitness != 0:
+            return self._fitness
+
         raw_fitness = self.fitness_func(self.genes)
 
         if self.natural_fitness:
-            return raw_fitness
+            self._fitness = raw_fitness
         else:
             #-------------------------------------------------------------------
             # If standardised fitness is zero we have found the best possible
             # solution.  The evolutionary algorithm should not be continuing
             # after finding it.
             #-------------------------------------------------------------------
-            return float('inf') if raw_fitness == 0 else 1.0 / raw_fitness
+            self.fitness = float('inf') if raw_fitness == 0 \
+                                        else 1.0 / raw_fitness
+
+        return self._fitness
 
     def raw_fitness(self):
         """
