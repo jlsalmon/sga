@@ -40,6 +40,9 @@ class Genome(object):
     def __repr__(self):
         return repr(self.genes)
 
+    def __len__(self):
+        return len(self.genes)
+
     def fitness(self):
         """
         Calculate the fitness of this genome.
