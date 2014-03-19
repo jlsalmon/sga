@@ -44,16 +44,16 @@ def uniform(male, female):
     :returns:      tuple containing two newly crossed-over children
     """
     ratio = 0.5
-    child1 = ""
-    child2 = ""
+    child1 = list()
+    child2 = list()
 
     for i, gene in enumerate(male):
         if random.random() > ratio:
-            child1 += gene
-            child2 += female[i]
+            child1.append(gene)
+            child2.append(female[i])
         else:
-            child1 += female[i]
-            child2 += gene
+            child1.append(female[i])
+            child2.append(gene)
 
     return child1, child2
 

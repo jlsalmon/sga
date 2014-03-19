@@ -16,10 +16,17 @@
 #-------------------------------------------------------------------------------
 
 
-class Genome(object):
+cdef class Genome(object):
     """
     Class representing a single genome.
     """
+    cdef public list genes
+    cdef public representation
+    cdef public fitness_func
+    cdef public natural_fitness
+    cdef public int _fitness
+    cdef public list average_sigmas
+    cdef public dict strategy_params
 
     def __init__(self, genes, representation, fitness_func, natural_fitness):
         """
@@ -31,11 +38,11 @@ class Genome(object):
         :param natural_fitness:  use natural fitness values, i.e. higher
                                  fitness value implies fitter individual
         """
-        self.genes           = genes
-        self.representation  = representation
-        self.fitness_func    = fitness_func
+        self.genes = genes
+        self.representation = representation
+        self.fitness_func = fitness_func
         self.natural_fitness = natural_fitness
-        self._fitness        = 0
+        self._fitness = -1
 
     def __repr__(self):
         return repr(self.genes)
@@ -43,32 +50,35 @@ class Genome(object):
     def __len__(self):
         return len(self.genes)
 
-    def fitness(self):
+    def __iter__(self):
+        return iter(self.genes)
+
+    cpdef int fitness(self, recalculate=False) except *:
         """
         Calculate the fitness of this genome.
 
+        :param recalculate: recalculate the fitness value
         :returns: the fitness value as returned by the user-specified fitness
                   function, standardised
         """
-        if self._fitness != 0:
-            return self._fitness
+        if recalculate:
 
-        raw_fitness = self.fitness_func(self.genes)
+            raw_fitness = self.fitness_func(self.genes)
 
-        if self.natural_fitness:
-            self._fitness = raw_fitness
-        else:
-            #-------------------------------------------------------------------
-            # If standardised fitness is zero we have found the best possible
-            # solution.  The evolutionary algorithm should not be continuing
-            # after finding it.
-            #-------------------------------------------------------------------
-            self.fitness = float('inf') if raw_fitness == 0 \
-                                        else 1.0 / raw_fitness
+            if self.natural_fitness:
+                self._fitness = raw_fitness
+            else:
+                #---------------------------------------------------------------
+                # If standardised fitness is zero we have found the best
+                # possible solution. The evolutionary algorithm should not be
+                # continuing after finding it.
+                #---------------------------------------------------------------
+                self._fitness = float('inf') if raw_fitness == 0 \
+                    else 1.0 / raw_fitness
 
         return self._fitness
 
-    def raw_fitness(self):
+    cpdef int raw_fitness(self):
         """
         Calculate the raw (natural) fitness of this genome.
 

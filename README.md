@@ -145,7 +145,4 @@ genome of the same format.
 The mutation probability will also be passed to the mutation function, and should
 be taken into account when mutating.
 
-Contact
--------
 
-Problems? Submit an issue or email me. I happily accept pull requests!

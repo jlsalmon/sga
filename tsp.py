@@ -86,7 +86,7 @@ def main():
                        "values": tsp.city_names,
                        "duplicates": False }
 
-    generations = 500
+    generations = 50
 
     p = Population(representation=Representation(representation),
                    size=100,
@@ -97,7 +97,8 @@ def main():
                    natural_fitness=False,
                    crossover_probability=0.5,
                    mutation_probability=0.3,
-                   elite_count=6)
+                   elite_count=6,
+                   tournament_size=10)
     p.gen_population()
 
     #---------------------------------------------------------------------------

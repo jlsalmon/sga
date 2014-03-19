@@ -16,6 +16,7 @@
 #-------------------------------------------------------------------------------
 
 from bisect import bisect_left
+import copy
 import random
 
 
@@ -78,6 +79,10 @@ def tournament(population):
         for i in xrange(tournament_size):
             if tournament_list[i].fitness() > max_indiv.fitness():
                 max_indiv = tournament_list[i]
+
+            elif tournament_list[i].fitness() == max_indiv.fitness():
+                if len(tournament_list[i]) < len(max_indiv):
+                    max_indiv = tournament_list[i]
 
         selection.append(max_indiv)
 

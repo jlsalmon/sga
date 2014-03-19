@@ -14,10 +14,10 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #-------------------------------------------------------------------------------
-import copy
 
 import random
 from itertools import izip
+from classifier.gene import Gene
 from sga.genome import Genome
 from sga.plotter import Plotter
 
@@ -50,7 +50,7 @@ class Population(object):
         :param       tournament_size: the size of a tournament selection group
         """
         self.population = list()
-        self.elites     = list()
+        self.elites = list()
 
         #-----------------------------------------------------------------------
         # Ensure even population size
@@ -63,18 +63,18 @@ class Population(object):
         # Ensure 0 < probability < 1
         #-----------------------------------------------------------------------
         if not (0 < float(crossover_probability) < 1) \
-                or not (0 < float(mutation_probability) < 1):
+            or not (0 < float(mutation_probability) < 1):
             raise ValueError('probabilities must be between 0 and 1')
 
         self.selection_func = selection_func
         self.crossover_func = crossover_func
-        self.mutation_func  = mutation_func
-        self.fitness_func   = fitness_func
+        self.mutation_func = mutation_func
+        self.fitness_func = fitness_func
 
-        self.representation  = representation
+        self.representation = representation
         self.natural_fitness = natural_fitness
         self.crossover_probability = crossover_probability
-        self.mutation_probability  = mutation_probability
+        self.mutation_probability = mutation_probability
 
         #-------------------------------------------------------------------
         # Ensure even elite count
@@ -85,33 +85,58 @@ class Population(object):
 
         self.tournament_size = tournament_size
 
+        self.plotter = Plotter()
+
+        self.average_sigmas = list()
+
     def run(self, generations):
         """
         Apply selection, crossover and mutation on the given population as many
         times as the given number of generations.
 
-        :param  population: the initial, random population
         :param generations: the number of generations/cycles to perform
         """
-        plotter = Plotter()
+        self.calculate_fitnesses()
+
+        #-----------------------------------------------------------------------
+        # Print a short summary
+        #-----------------------------------------------------------------------
+        print 'population size=%d, representation=%s, ' \
+              'crossover probability=%f, mutation probability=%f, ' \
+              'elite count=%d' \
+              % (len(self.population), self.representation,
+                 self.crossover_probability, self.mutation_probability,
+                 self.elite_count)
+        print 'selection scheme=%s, crossover scheme=%s, mutation scheme=%s, ' \
+              'fitness function=%s, natural_fitness=%s' \
+              % (self.selection_func, self.crossover_func,
+                 self.mutation_func,
+                 self.fitness_func, self.natural_fitness)
 
         print 'generation=0, total fitness=%d, mean fitness=%s, ' \
-              'min individual=%s (%s), max individual=%s (%s)' \
+              'min individual=%s (len=%d), max individual=%s (len=%d)' \
               % (self.total_fitness(), self.mean_fitness(),
-                 self.min_individual().genes,
-                 self.min_individual().raw_fitness(),
-                 self.max_individual().genes,
-                 self.max_individual().raw_fitness())
+                 self.min_individual().fitness(),
+                 len(self.min_individual()),
+                 self.max_individual().fitness(),
+                 len(self.max_individual()))
 
-        plotter.update(self.mean_fitness(),
-                       self.max_individual().fitness(),
-                       self.min_individual().fitness())
+        self.plotter.update(self.mean_fitness(),
+                            self.max_individual().fitness(),
+                            self.min_individual().fitness())
+
+        for i in self.population:
+            if hasattr(i, 'average_sigmas') and i.average_sigmas is not None:
+                self.average_sigmas.append(sum(i.average_sigmas)
+                                           / len(i.average_sigmas))
+
+        # print self.average_sigmas
+        # print len(self.average_sigmas)
 
         #-----------------------------------------------------------------------
         # Loop for each generation
         #-----------------------------------------------------------------------
         for i in xrange(1, generations):
-
             #-------------------------------------------------------------------
             # Perform elitism
             #-------------------------------------------------------------------
@@ -137,23 +162,41 @@ class Population(object):
             #-------------------------------------------------------------------
             self.load_elites()
 
+            #-------------------------------------------------------------------
+            # Recalculate fitnesses
+            #-------------------------------------------------------------------
+            self.calculate_fitnesses()
+
             min_individual = self.min_individual()
             max_individual = self.max_individual()
 
+            # print 'generation=%d, total fitness=%d, mean fitness=%s, ' \
+            #       'min individual=%s (%s), max individual=%s (%s)' \
+            #       % (i, self.total_fitness(), self.mean_fitness(),
+            #          min_individual.genes,
+            #          min_individual.raw_fitness(),
+            #          max_individual.genes,
+            #          max_individual.raw_fitness())
+
             print 'generation=%d, total fitness=%d, mean fitness=%s, ' \
-                  'min individual=%s (%s), max individual=%s (%s)' \
+                  'min individual=%s (len=%d), max individual=%s (len=%d)' \
                   % (i, self.total_fitness(), self.mean_fitness(),
-                     min_individual.genes,
-                     min_individual.raw_fitness(),
-                     max_individual.genes,
-                     max_individual.raw_fitness())
-            # print [p.genes for p in population]
+                     self.min_individual().fitness(),
+                     len(self.min_individual()),
+                     self.max_individual().fitness(),
+                     len(self.max_individual()))
 
-            plotter.update(self.mean_fitness(),
-                           max_individual.fitness(),
-                           min_individual.fitness())
+            self.plotter.update(self.mean_fitness(),
+                                max_individual.fitness(),
+                                min_individual.fitness())
 
-        plotter.plot()
+            for i in self.population:
+                if hasattr(i, 'average_sigmas') and i.average_sigmas is not None:
+                    self.average_sigmas.append(sum(i.average_sigmas)
+                                               / len(i.average_sigmas))
+
+            # print self.average_sigmas
+            # print len(self.average_sigmas)
 
     def __iter__(self):
         return iter(self.population)
@@ -177,7 +220,7 @@ class Population(object):
             for _ in xrange(self.size):
                 fmt = '{0:0' + str(self.representation.length) + 'b}'
                 gene = Genome(fmt.format(
-                              random.randint(0, 2**self.representation.length)),
+                    random.randint(0, 2 ** self.representation.length)),
                               representation=self.representation,
                               fitness_func=self.fitness_func,
                               natural_fitness=self.natural_fitness)
@@ -220,13 +263,14 @@ class Population(object):
                 #---------------------------------------------------------------
                 if self.representation.duplicates:
                     gene = [self.representation.values[random.randint(0,
-                            self.representation.length) - 1]
+                                len(self.representation.values)) - 1]
                             for _ in xrange(self.representation.length)]
                 #---------------------------------------------------------------
                 # Disallow duplicates
                 #---------------------------------------------------------------
                 else:
                     import copy
+
                     gene = copy.copy(self.representation.values)
                     random.shuffle(gene)
 
@@ -235,6 +279,11 @@ class Population(object):
                               fitness_func=self.fitness_func,
                               natural_fitness=self.natural_fitness)
                 self.population.append(gene)
+
+    def calculate_fitnesses(self):
+        """"""
+        for i in self.population:
+            i.fitness(recalculate=True)
 
     def update_population(self, population):
         """
@@ -304,8 +353,8 @@ class Population(object):
         """
         Perform population selection using the user-supplied selection function.
         """
-        selected_parents = self.selection_func(self.population)
-        self.update_population(selected_parents)
+        selected_parents = self.selection_func(self)
+        self.update_population([self.make_copy(i) for i in selected_parents])
 
     def crossover(self, probability):
         """
@@ -320,18 +369,25 @@ class Population(object):
         # Loop the population in twos
         #-----------------------------------------------------------------------
         for male, female in self.pairwise(self.population):
-            child1, child2 = male.genes, female.genes
+            child1, child2 = self.make_copy(male), self.make_copy(female)
 
             #-------------------------------------------------------------------
             # Maybe do the crossover... maybe not
             #-------------------------------------------------------------------
             if random.random() <= probability:
-                child1, child2 = self.crossover_func(male.genes, female.genes)
+                child1.genes, child2.genes = self.crossover_func(child1.genes,
+                                                                 child2.genes)
 
-            result.append(Genome(child1, self.representation,
-                                 self.fitness_func, self.natural_fitness))
-            result.append(Genome(child2, self.representation,
-                                 self.fitness_func, self.natural_fitness))
+                # male.genes   = child1[:]
+                # female.genes = child2[:]
+
+            result.append(child1)
+            result.append(child2)
+
+                # result.append(Genome(child1, self.representation,
+                #                      self.fitness_func, self.natural_fitness))
+                # result.append(Genome(child2, self.representation,
+                #                      self.fitness_func, self.natural_fitness))
 
         assert len(result) == len(self.population)
 
@@ -353,11 +409,44 @@ class Population(object):
             #-------------------------------------------------------------------
             # Make a copy of the genes
             #-------------------------------------------------------------------
-            i.genes = self.mutation_func(copy.deepcopy(i.genes), probability)
-            result.append(i)
+            # i.genes = self.mutation_func(copy.deepcopy(i.genes), probability)
+            indiv_copy = self.make_copy(i)
+            genes = self.mutation_func(indiv_copy, probability)
+            indiv_copy.genes = genes
+            result.append(indiv_copy)
 
         assert len(result) == len(self.population)
         self.update_population(result)
+
+    def make_copy(self, individual):
+        if isinstance(individual.genes[0], Gene):
+
+            genes_copy = list()
+            for gene in individual.genes:
+                gene_copy = Gene(gene.alleles[:])
+                gene_copy.class_label = gene.class_label
+                if gene.mutation_step_sizes is not None:
+                    gene_copy.mutation_step_sizes = gene.mutation_step_sizes[:]
+                genes_copy.append(gene_copy)
+
+            genome = Genome(genes_copy, individual.representation,
+                    individual.fitness_func,
+                    individual.natural_fitness)
+
+        else:
+            genome = Genome(individual.genes[:], individual.representation,
+                            individual.fitness_func,
+                            individual.natural_fitness)
+
+        genome._fitness = individual._fitness
+        if hasattr(individual, 'strategy_params') \
+                and individual.strategy_params is not None:
+            genome.strategy_params = individual.strategy_params.copy()
+        if hasattr(individual, 'average_sigmas') \
+                and individual.average_sigmas is not None:
+            genome.average_sigmas = individual.average_sigmas[:]
+
+        return genome
 
     def pairwise(self, iterable):
         """
@@ -366,3 +455,10 @@ class Population(object):
         """
         a = iter(iterable)
         return izip(a, a)
+
+    def show_plot(self):
+        self.plotter.show()
+
+    def add_to_plot(self, data, label):
+        self.plotter.add_to_plot(data, label)
+

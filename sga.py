@@ -174,6 +174,8 @@ def main():
           % (args.selection_scheme, args.crossover_scheme, args.mutation_scheme,
              args.fitness_function, args.natural_fitness)
 
+    args.representation = {"type":"enum","length":50,"values":[1,2,3,4,5]}
+    args.mutation_scheme = mutation.swap
     #---------------------------------------------------------------------------
     # Generate the initial population
     #---------------------------------------------------------------------------
